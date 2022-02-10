@@ -2,6 +2,7 @@
 <html>
 <head>
 <title>Timee</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
 </head>
 <body>
 <main>
@@ -9,6 +10,7 @@
 <section id="inputSection">
 	<label for="localeDate">Choose your locale date to be shared</label>
 	<input id="localeDate" name="localeDate" type="datetime-local"/>
+	<button id="selectNow" type="button">select now</button>
 <hr />
 	<button type="button" id="localeExport">export</button>
 	or
@@ -26,6 +28,12 @@ const parseISO = (str) => {
 	return new Date(str);
 }
 
+const tryParseISO = (iso) => {
+	const date = parseISO(iso);
+	const isValid = date.toString() !== "Invalid Date";
+	return [isValid, date];
+}
+
 const tryGetUrlTime = () => {
 	if (!window.location.search) {
 		return [false, null];
@@ -34,9 +42,11 @@ const tryGetUrlTime = () => {
 	if (!iso) {
 		return [false, null];
 	}
-	const date = parseISO(iso);
-	const isValid = date.toString() !== "Invalid Date";
-	return [isValid, date];
+	return tryParseISO(iso);
+}
+
+const toLocalISOString = (date) => {
+	return date.toLocaleString('sv').replace(' ', 'T');
 }
 
 const updateQuery = (newQuery) => {
@@ -72,7 +82,10 @@ const main = () => {
 		}
 		document.querySelector("#localeShare").onclick = async () => {
 			const value = document.querySelector('#inputSection input[type=datetime-local]').value;
-			const date = new Date(value);
+			const [isValid, Date] = tryParseISO(value);
+			if (!isValid) {
+				return;
+			}
 			const url = exportUrl(date);
 			const shareData = {
 				title: "title",
@@ -80,6 +93,9 @@ const main = () => {
 				url: url,
 			};
 			await navigator.share(shareData);
+		}
+		document.querySelector("#selectNow").onclick = () => {
+			document.querySelector('#inputSection input[type=datetime-local]').value = toLocalISOString(new Date());
 		}
 	}
 }
