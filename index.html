@@ -82,7 +82,7 @@ const main = () => {
 		}
 		document.querySelector("#localeShare").onclick = async () => {
 			const value = document.querySelector('#inputSection input[type=datetime-local]').value;
-			const [isValid, Date] = tryParseISO(value);
+			const [isValid, date] = tryParseISO(value);
 			if (!isValid) {
 				return;
 			}
