@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Timee</title>
+</head>
+<body>
+<main>
+
+<section id="inputSection">
+	<label for="localeDate">Choose your locale date to be shared</label>
+	<input id="localeDate" name="localeDate" type="datetime-local"/>
+<hr />
+	<button type="button" id="localeExport">export</button>
+	or
+	<button type="button" id="localeShare">share</button>
+	
+</section>
+
+<section id="outputSection">
+	<p></p>
+</section>
+
+</main>
+<script>
+const parseISO = (str) => {
+	return new Date(str);
+}
+
+const tryGetUrlTime = () => {
+	if (!window.location.search) {
+		return [false, null];
+	}
+	const iso = new URLSearchParams(window.location.search).get("iso");
+	if (!iso) {
+		return [false, null];
+	}
+	const date = parseISO(iso);
+	const isValid = date.toString() !== "Invalid Date";
+	return [isValid, date];
+}
+
+const updateQuery = (newQuery) => {
+	if (window.location.search)
+		return window.location.href.replace(window.location.search, newQuery);
+	return window.location.href + '?' + newQuery;
+}
+
+const exportUrl = (localeDate) => {
+	const iso = localeDate.toISOString();
+	const params = new URLSearchParams(window.location.search);
+	params.set("iso", iso);
+	return updateQuery(params.toString());
+}
+
+const main = () => {
+	const [isValid, iso] = tryGetUrlTime();
+	if (isValid) {
+		const locale = iso.toString(); //iso.toLocaleString();
+		
+		document.querySelector('#outputSection > p').textContent = locale;
+		document.querySelector('#inputSection').style.display = "none";
+		document.querySelector('#outputSection').style.display = "block";
+	}
+	else {
+		document.querySelector('#inputSection').style.display = "block"
+		document.querySelector('#outputSection').style.display = "none";
+		document.querySelector("#localeExport").onclick = () => {
+			const value = document.querySelector('#inputSection input[type=datetime-local]').value;
+			const date = new Date(value);
+			const url = exportUrl(date);
+			prompt("copy this url then share it!", url);
+		}
+		document.querySelector("#localeShare").onclick = async () => {
+			const value = document.querySelector('#inputSection input[type=datetime-local]').value;
+			const date = new Date(value);
+			const url = exportUrl(date);
+			const shareData = {
+				title: "title",
+				text: "text",
+				url: url,
+			};
+			await navigator.share(shareData);
+		}
+	}
+}
+
+main();
+</script>
+</body>
+</html>
