@@ -45,8 +45,14 @@ const tryGetUrlTime = () => {
 	return tryParseISO(iso);
 }
 
+/**
+* @author AlliterativeAlice <https://stackoverflow.com/users/2457005/alliterativealice>
+* @copyright 2021 AlliterativeAlice
+* @license CC BY-SA 4.0
+* @see {@link https://stackoverflow.com/a/65758103/1248177|Javascript date format like ISO but local}
+*/
 const toLocalISOString = (date) => {
-	return date.toLocaleString('sv').replace(' ', 'T');
+	return date.toLocaleString('sv');
 }
 
 const updateQuery = (newQuery) => {
